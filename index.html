@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Egg Fried Rice</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Perfect Egg Fried Rice</h1>
+        
+        <div class="audio-container">
+            <div class="controls-row">
+                <button class="control-button" id="rewindButton" title="Rewind 10 seconds">⏪</button>
+                <button class="play-button" id="playButton">▶</button>
+                <button class="control-button" id="forwardButton" title="Fast forward 10 seconds">⏩</button>
+            </div>
+            <div class="audio-controls">
+                <audio id="audioPlayer" src="media/audio.m4a"></audio>
+                <div class="scrubber-container">
+                    <span class="time-display" id="currentTime">0:00</span>
+                    <input type="range" id="scrubber" class="scrubber" min="0" max="1" value="0" step="0.1">
+                    <span class="time-display" id="totalTime">0:00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="transcript" id="transcript"></div>
+    </div>
+
+    <script>
+        const transcriptData = [
+            { time: 0, text: "What's the craic?" },
+            { time: 1, text: "Okay, so I guess things to remember when doing egg fried rice, the rice needs to be room temperature and dry." },
+            { time: 12, text: "You don't really want to cook rice and then put it directly into egg fried rice because what you're going to get is you're going to get wet egg fried rice and that's really not good." },
+            { time: 21, text: "Or the rice might break up and that's not good." },
+            { time: 24, text: "With regards to the key, the, the key thing is to do everything separately." },
+            { time: 30, text: "So you cook your egg first in the pan in the wok." },
+            { time: 36, text: "Then you're gonna cook any meaty bits." },
+            { time: 39, text: "So you take your egg out, you can cook it like one big omelette." },
+            { time: 42, text: "You don't have to like cook it like a scrambled egg." },
+            { time: 43, text: "You cook it into like one large kind of cooked piece of egg." },
+            { time: 47, text: "Put that in the bowl of the side." },
+            { time: 49, text: "Then you want to cook any meaty bits you have." },
+            { time: 51, text: "So if the chicken or bacon or whatever in the pan, put that aside." },
+            { time: 55, text: "Then." },
+            { time: 56, text: "Then you want to do any veg that needs to be cooked." },
+            { time: 59, text: "So your onion, if you're putting brocc, all that kind of stuff that to the side." },
+            { time: 65, text: "Then you get that wok absolutely ripping hot, like ripping, ripping hot." },
+            { time: 70, text: "Put your rice in, toss it around." },
+            { time: 73, text: "This is when you want to add your aromatic." },
+            { time: 75, text: "So that's your chopped ginger and your chopped garlic are in there." },
+            { time: 78, text: "Don't cook your ginger and garlic." },
+            { time: 81, text: "You want them to be like fragrant in the rice." },
+            { time: 83, text: "You don't want them like cooked in oil also." },
+            { time: 86, text: "Then you add your spring onion." },
+            { time: 87, text: "So you're not going to like cook your spring onions like you would onion." },
+            { time: 91, text: "They're again aromatic." },
+            { time: 92, text: "So you're gonna add them in." },
+            { time: 94, text: "Then you want to." },
+            { time: 96, text: "You can add your MSG at this point as well." },
+            { time: 100, text: "You want to then toss back in your egg, chop that up with a spatula." },
+            { time: 104, text: "So you kind of get kind of." },
+            { time: 106, text: "You have that one big piece of egg, you chop that up into kind of smaller curds, then add in your vegetables and your meat back in." },
+            { time: 114, text: "Then with regards to sauces, less is more." },
+            { time: 118, text: "So you want to throw your soy sauce in, but you want to throw it in around the edges of the wok so that it kind of cooks on the surface of the wok before going to your rice." },
+            { time: 130, text: "Or you want to clear a little space in the wok and pour the soy sauce directly onto the wok." },
+            { time: 136, text: "So again it'll sizzle and cook." },
+            { time: 138, text: "Don't just toss it like salad dressing over your rice." },
+            { time: 142, text: "Then finally, if you want to add fish sauce, that's also the time to do it." },
+            { time: 146, text: "And then finally turn off the heat sesame oil to add fragrance and toss that through." },
+            { time: 153, text: "But don't cook anything in the sesame oil." }
+        ];
+
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playButton = document.getElementById('playButton');
+        const rewindButton = document.getElementById('rewindButton');
+        const forwardButton = document.getElementById('forwardButton');
+        const scrubber = document.getElementById('scrubber');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const totalTimeDisplay = document.getElementById('totalTime');
+        const transcriptContainer = document.getElementById('transcript');
+
+        let userScrolledToTop = false;
+        let lastScrollTop = 0;
+        let isUserScrolling = false;
+
+        // Initialize transcript
+        transcriptData.forEach((item, index) => {
+            const line = document.createElement('div');
+            line.className = 'transcript-line';
+            line.dataset.index = index;
+            line.textContent = item.text;
+            transcriptContainer.appendChild(line);
+        });
+
+        const transcriptLines = document.querySelectorAll('.transcript-line');
+
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update scrubber and time display
+        function updateScrubber() {
+            if (audioPlayer.duration) {
+                scrubber.value = audioPlayer.currentTime;
+                currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+            }
+        }
+
+        // Set total time when audio metadata loads
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            scrubber.max = audioPlayer.duration;
+            scrubber.step = 0.1;
+            totalTimeDisplay.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // Track user scroll
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            isUserScrolling = true;
+            clearTimeout(scrollTimeout);
+            
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollThreshold = 100; // pixels from top
+            
+            // Check if user scrolled to top
+            if (scrollTop < scrollThreshold) {
+                userScrolledToTop = true;
+            } else if (scrollTop > lastScrollTop + 50) {
+                // User scrolled down significantly, re-enable autoscroll
+                userScrolledToTop = false;
+            }
+            
+            lastScrollTop = scrollTop;
+            
+            scrollTimeout = setTimeout(() => {
+                isUserScrolling = false;
+            }, 150);
+        });
+
+        // Play button functionality
+        playButton.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playButton.textContent = '⏸';
+            } else {
+                audioPlayer.pause();
+                playButton.textContent = '▶';
+            }
+        });
+
+        // Rewind button (10 seconds)
+        rewindButton.addEventListener('click', () => {
+            audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 10);
+        });
+
+        // Fast forward button (10 seconds)
+        forwardButton.addEventListener('click', () => {
+            audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 10);
+        });
+
+        // Scrubber functionality
+        scrubber.addEventListener('input', () => {
+            audioPlayer.currentTime = scrubber.value;
+        });
+
+        // Update transcript based on current time
+        audioPlayer.addEventListener('timeupdate', () => {
+            updateScrubber();
+            const currentTime = Math.floor(audioPlayer.currentTime);
+            
+            transcriptLines.forEach((line, index) => {
+                const lineTime = transcriptData[index].time;
+                const nextLineTime = index < transcriptData.length - 1 
+                    ? transcriptData[index + 1].time 
+                    : Infinity;
+
+                line.classList.remove('active', 'past');
+
+                if (currentTime >= lineTime && currentTime < nextLineTime) {
+                    line.classList.add('active');
+                    // Only autoscroll if user hasn't scrolled to top
+                    if (!userScrolledToTop && !isUserScrolling) {
+                        line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else if (currentTime >= nextLineTime) {
+                    line.classList.add('past');
+                }
+            });
+        });
+
+        // Update play button when audio ends
+        audioPlayer.addEventListener('ended', () => {
+            playButton.textContent = '▶';
+            transcriptLines.forEach(line => {
+                line.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
