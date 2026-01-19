@@ -24,9 +24,17 @@ body {
 h1 {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
     color: #222;
     text-align: center;
+}
+
+.subtitle {
+    font-size: 0.875rem;
+    font-style: italic;
+    color: #666;
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
 .audio-container {
@@ -47,12 +55,6 @@ h1 {
     gap: 0.75rem;
 }
 
-.controls-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-}
 
 .play-button {
     width: 60px;
@@ -76,31 +78,6 @@ h1 {
 }
 
 .play-button:active {
-    transform: scale(0.95);
-}
-
-.control-button {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    background: #333;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.control-button:hover {
-    background: #555;
-    transform: scale(1.05);
-}
-
-.control-button:active {
     transform: scale(0.95);
 }
 
@@ -201,18 +178,8 @@ audio {
         padding: 1rem;
     }
 
-    .controls-row {
-        gap: 0.75rem;
-    }
-
     .play-button {
         width: 55px;
         height: 55px;
-    }
-
-    .control-button {
-        width: 45px;
-        height: 45px;
-        font-size: 1rem;
     }
 }

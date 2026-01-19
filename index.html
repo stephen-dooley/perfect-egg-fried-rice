@@ -9,13 +9,10 @@
 <body>
     <div class="container">
         <h1>Perfect Egg Fried Rice</h1>
+        <p class="subtitle">by Oisin Daly</p>
         
         <div class="audio-container">
-            <div class="controls-row">
-                <button class="control-button" id="rewindButton" title="Rewind 10 seconds">⏪</button>
-                <button class="play-button" id="playButton">▶</button>
-                <button class="control-button" id="forwardButton" title="Fast forward 10 seconds">⏩</button>
-            </div>
+            <button class="play-button" id="playButton">▶</button>
             <div class="audio-controls">
                 <audio id="audioPlayer" src="media/audio.m4a"></audio>
                 <div class="scrubber-container">
@@ -75,8 +72,6 @@
 
         const audioPlayer = document.getElementById('audioPlayer');
         const playButton = document.getElementById('playButton');
-        const rewindButton = document.getElementById('rewindButton');
-        const forwardButton = document.getElementById('forwardButton');
         const scrubber = document.getElementById('scrubber');
         const currentTimeDisplay = document.getElementById('currentTime');
         const totalTimeDisplay = document.getElementById('totalTime');
@@ -152,16 +147,6 @@
                 audioPlayer.pause();
                 playButton.textContent = '▶';
             }
-        });
-
-        // Rewind button (10 seconds)
-        rewindButton.addEventListener('click', () => {
-            audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 10);
-        });
-
-        // Fast forward button (10 seconds)
-        forwardButton.addEventListener('click', () => {
-            audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 10);
         });
 
         // Scrubber functionality
